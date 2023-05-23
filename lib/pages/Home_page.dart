@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Calendar_Page.dart' as calendar;
 
@@ -66,15 +67,23 @@ class _MainPageState extends State<MainPage> {
     String imagePath = 'assets/images/3rd.png'; // 기본 이미지 경로
 
     // 연속 출석일에 따라 이미지 경로 변경
-    if (_consecutiveDays == 2) {
-      imagePath = 'assets/images/1st.png';
-    } else if (_consecutiveDays >= 3) {
+    if (_consecutiveDays == 1) {
       imagePath = 'assets/images/2nd.png';
+    } else if (_consecutiveDays >= 2) {
+      imagePath = 'assets/images/1st.png';
     } 
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('메인'),
+        backgroundColor: Colors.white,
+        title:const Center(
+          child:Text(
+          '메인화면',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

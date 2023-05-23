@@ -18,30 +18,51 @@ class _NavigationExampleState extends State<NavigationExample> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(
-      title: const Center(
-        child: Text(
-          'HOOHA',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+   appBar: AppBar(
+    backgroundColor: Colors.white,
+  title: Row(
+    mainAxisSize: MainAxisSize.min,
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+     IconButton(
+  icon: Icon(Icons.notifications),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NotificationPage(notifications: notifications),
+      ),
+    );
+  },
+  color: Colors.black, // 알림 아이콘의 색상을 검은색으로 설정
+),
+
+      const Expanded(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "HOOHA",
+                style: TextStyle(
+                  color: Color(0xff374151),
+                  fontSize: 24,
+                  fontFamily: "Inter",
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NotificationPage(notifications: notifications),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+    ],
+  ),
+),
+
     bottomNavigationBar: NavigationBar(
       onDestinationSelected: (int index) {
         setState(() {
@@ -74,13 +95,13 @@ Widget build(BuildContext context) {
 
 Widget _buildPage(int index) {
   if (index == 0) {
-    return MainPage(); // 사용자 정보가 표시될 페이지
+    return const MainPage(); // 사용자 정보가 표시될 페이지
   } else if (index == 1) {
-    return CalendarPage();
+    return const CalendarPage();
   } else if (index == 2) {
-    return CounselPage();
+    return const CounselPage();
   } else if (index == 3) {
-    return MyPage();
+    return const MyPage();
   } else {
     return Container();
   }
