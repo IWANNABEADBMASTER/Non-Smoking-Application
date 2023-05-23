@@ -72,8 +72,8 @@ class _InputInfoPageState extends State<InputInfoPage> {
                 },
               ),
               const SizedBox(height: 16.0),
-              Text(
-                'Gender',
+               Text(
+                _selectedGender == Gender.male ? '성별: 남성' : '성별: 여성',
                 style: Theme.of(context).textTheme.subtitle1,
               ),
               Row(
@@ -100,6 +100,7 @@ class _InputInfoPageState extends State<InputInfoPage> {
                   const Text('여성'),
                 ],
               ),
+            
               ElevatedButton(
                 onPressed: () async {
                   final DateTime? pickedDate = await showDatePicker(

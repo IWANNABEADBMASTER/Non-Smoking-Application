@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '/pages/navigation.dart';
+import 'pages/navigation.dart';
 import 'pages/InputInfo_Page.dart';
 void main() {
   runApp(MyApp());
