@@ -99,7 +99,7 @@ Widget _buildPage(int index) {
   } else if (index == 1) {
     return const CalendarPage();
   } else if (index == 2) {
-    return const CounselPage();
+    return const GetCounsel();
   } else if (index == 3) {
     return const MyPage();
   } else {

@@ -27,7 +27,7 @@ class _InputInfoPageState extends State<InputInfoPage> {
     if (_selectedDate != null) {
       sharedPreferences.setInt('quitDate', _selectedDate!.millisecondsSinceEpoch);
     }
-    
+
     if (widget.onInfoEntered != null) {
       widget.onInfoEntered!(); // onInfoEntered 콜백 호출
     }
@@ -37,7 +37,7 @@ class _InputInfoPageState extends State<InputInfoPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => NavigationExample(),
+        builder: (context) => const NavigationExample(),
       ),
     );
   }
@@ -52,7 +52,17 @@ class _InputInfoPageState extends State<InputInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('사용자 정보 입력'),
+        backgroundColor: Colors.white, // 흰색 배경색
+        title: const Center(
+          child: Text(
+            'HOOHA',
+            style: TextStyle(
+              color: Color(0xff374151), // 검은색 글자색
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -72,7 +82,7 @@ class _InputInfoPageState extends State<InputInfoPage> {
                 },
               ),
               const SizedBox(height: 16.0),
-               Text(
+              Text(
                 _selectedGender == Gender.male ? '성별: 남성' : '성별: 여성',
                 style: Theme.of(context).textTheme.subtitle1,
               ),
@@ -100,8 +110,8 @@ class _InputInfoPageState extends State<InputInfoPage> {
                   const Text('여성'),
                 ],
               ),
-            
-              ElevatedButton(
+              const SizedBox(height: 16.0),
+              TextButton(
                 onPressed: () async {
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
@@ -116,7 +126,8 @@ class _InputInfoPageState extends State<InputInfoPage> {
                   }
                 },
                 child: Text(
-                  _selectedDate != null ? '시작 날짜: ${_selectedDate!.toString().split(' ')[0]}' : '금연 시작 날짜',
+                  _selectedDate != null ? '금연 시작일: ${_selectedDate!.toString().split(' ')[0]}' : '금연 시작 날짜:',
+                
                 ),
               ),
               const SizedBox(height: 16.0),

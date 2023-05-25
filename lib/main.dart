@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+// ignore: unused_import
+import 'package:bubble/bubble.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/navigation.dart';
 import 'pages/InputInfo_Page.dart';
-void main() {
+
+// ignore: non_constant_identifier_names
+String OPENAI_API_KEY = dotenv.env['OPEN_AI_API_KEY']!;
+// ignore: constant_identifier_names
+const String MODEL_ID = 'text-davinci-003';
+/* assets/config/.env 파일 받기
+void main() async {
+  await dotenv.load(fileName: 'assets/config/.env');
+  runApp(const MyApp());
+} */
+Future<void> main() async {
+  await dotenv.load(fileName: 'assets/images/.env');
   runApp(MyApp());
 }
 
