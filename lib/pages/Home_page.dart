@@ -53,7 +53,7 @@ class _MainPageState extends State<MainPage> {
       _consecutiveDays = sharedPreferences.getInt('consecutiveDays') ?? 0;
     });
   }
-/* 정보 다시입력 창 
+// 정보 다시입력 창 
   Future<void> _resetUserInformation() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.remove('name');
@@ -62,7 +62,7 @@ class _MainPageState extends State<MainPage> {
     // 사용자 정보 초기화 후 다시 정보를 로드
     await _loadUserInformation();
   }
-*/
+
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
@@ -112,10 +112,10 @@ class _MainPageState extends State<MainPage> {
               '$_money원 절약 중이에요.',
               style: const TextStyle(fontSize: 18.0),
             ),
-            /*ElevatedButton(
+            ElevatedButton( //초기화 버튼
               onPressed: _resetUserInformation,
               child: const Text('정보 다시입력'),
-            ),*/
+            ),
             const SizedBox(height: 20),
             Center(
               child: Image.asset(
