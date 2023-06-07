@@ -19,7 +19,7 @@ const String MODEL_ID = 'text-davinci-003';
 void main() async {
   await dotenv.load(fileName: 'assets/images/.env');
   WidgetsFlutterBinding.ensureInitialized();
-  kakao.KakaoSdk.init(nativeAppKey: 'f4797bdadfc6cd9c0ec4bfd879d8337b');
+  kakao.KakaoSdk.init(nativeAppKey: dotenv.env['NATIVE_APP_KEY']);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); // Firebase 초기화
 
