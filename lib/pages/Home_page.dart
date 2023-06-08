@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Calendar_Page.dart' as calendar;
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
+
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
-
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
+
+  
   String _name = '';
   String _gender = '';
   DateTime? _quitDate;
@@ -26,13 +29,14 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     Firebase.initializeApp().then((value) {
       _loadUserInformation();
-      _loadAttendanceCount();
+      //_loadAttendanceCount();
     });
   }
 
   Future<void> _loadUserInformation() async {
-    final user = _firestore.collection('users').doc('2816340414');
-    final userSnapshot = await user.get();
+    final kakao.User user = await kakao.UserApi.instance.me();
+    final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.id.toString());
+    final userSnapshot = await userDocRef.get();
     print('userid: ${user.id}');
     if (userSnapshot.exists) {
       final userData = userSnapshot.data();
@@ -57,16 +61,18 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  Future<void> _loadAttendanceCount() async {
-    final user = _firestore.collection('users').doc('your_user_id');
-    final userSnapshot = await user.get();
+  /*Future<void> _loadAttendanceCount() async {
+    final kakao.User user = await kakao.UserApi.instance.me();
+    final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.id.toString());
+    final user1 = _firestore.collection('users').doc(user.id.toString());
+    final userSnapshot = await userDocRef.get();
     if (userSnapshot.exists) {
       setState(() {
         _attendanceCount = userSnapshot.get('attendanceCount') ?? 0;
         _consecutiveDays = userSnapshot.get('consecutiveDays') ?? 0;
       });
     }
-  }
+  }*/
 
   // 정보 다시입력 창
   Future<void> _resetUserInformation() async {

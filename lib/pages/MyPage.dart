@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
-
+import 'notification_settings_page.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -24,6 +22,7 @@ class _MyPageState extends State<MyPage> {
   String? _selectedGender;
   DateTime? _quitDate;
   String? _selectedJob;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 
   DateTime dateTime = DateTime.now(); // 사용자가 선택한 시간을 저장
@@ -31,6 +30,8 @@ class _MyPageState extends State<MyPage> {
   int notificationId = 0; // 푸시 알림 ID
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  List<String> _genders = ['남성', '여성'];
+  List<bool> _isSelected = [false, false];
 
   @override
   void initState() {
@@ -40,56 +41,68 @@ class _MyPageState extends State<MyPage> {
   }
 
   Future<void> _loadUserInformation() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      _nameController.text = sharedPreferences.getString('name') ?? '';
-      _selectedGender = sharedPreferences.getString('gender');
-      _selectedJob = sharedPreferences.getString('job');
-      final quitDateMilliseconds = sharedPreferences.getInt('quitDate');
-      _quitDate = quitDateMilliseconds != null
-          ? DateTime.fromMillisecondsSinceEpoch(quitDateMilliseconds)
-          : null;
-    });
-  }
 
-  Future<void> _saveUserInformation() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString('name', _nameController.text);
-    sharedPreferences.setString('gender', _selectedGender ?? '');
-    sharedPreferences.setString('job', _selectedJob ?? '');
-    if (_quitDate != null) {
-      sharedPreferences.setInt('quitDate', _quitDate!.millisecondsSinceEpoch);
-    } else {
-      sharedPreferences.remove('quitDate');
+    final kakao.User user = await kakao.UserApi.instance.me();
+    final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.id.toString());
+    final userId = await userDocRef.get();
+    print('MyPageUserId ::: $userId');
+    print('userid: ${user.id}');
+
+    if (userId != null) {
+      final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.id.toString());
+      final userData = await userDocRef.get();
+
+      setState(() {
+        _nameController.text = userData['displayName'] ?? '';
+        _selectedGender = userData['gender'];
+        _selectedJob = userData['job'];
+        final quitDateMilliseconds = userData['quitDate'];
+        _quitDate = quitDateMilliseconds != null
+            ? DateTime.fromMillisecondsSinceEpoch(quitDateMilliseconds)
+            : null;
+      });
     }
   }
 
-  Future<void> _updateUserInformation() async {
+  Future<String?> getUserId() async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    final userId = sharedPreferences.getString('userId');
+    return sharedPreferences.getString('userId');
+  }
 
+  Future<void> _saveUserInformation() async {
+    final userId = await getUserId();
     if (userId != null) {
       final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
-
-      await userDocRef.update({
+      await userDocRef.set({
         'displayName': _nameController.text,
         'gender': _selectedGender,
         'quitDate': _quitDate != null ? _quitDate!.millisecondsSinceEpoch : null,
         'job': _selectedJob,
       });
-      setState(() {
-      // 사용자 정보가 업데이트되었으므로 상태를 갱신합니다.
-      sharedPreferences.setString('name', _nameController.text);
-      sharedPreferences.setString('gender', _selectedGender ?? '');
-      sharedPreferences.setString('job', _selectedJob ?? '');
-      if (_quitDate != null) {
-        sharedPreferences.setInt('quitDate', _quitDate!.millisecondsSinceEpoch);
-      } else {
-        sharedPreferences.remove('quitDate');
-      }
-    });
     }
   }
+
+  Future<void> _updateUserInformation() async {
+  final kakao.User user = await kakao.UserApi.instance.me();
+  final userId = user.id.toString();
+  final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  await userDocRef.update({
+    'displayName': _nameController.text,
+    'gender': _selectedGender,
+    'quitDate': _quitDate != null ? _quitDate!.millisecondsSinceEpoch : null,
+    'job': _selectedJob,
+  });
+
+  setState(() {
+    _loadUserInformation(); // 수정된 정보를 다시 불러와 UI 업데이트
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('정보가 업데이트되었습니다.')),
+  );
+}
+
 
   void toggleNotification(bool value) {
     setState(() {
@@ -107,11 +120,12 @@ class _MyPageState extends State<MyPage> {
   }
 
   Future<void> initializeNotifications() async {
-    var initializationSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher'); // Android 초기화 설정
-    
+    var initializationSettingsAndroid = const AndroidInitializationSettings(
+        '@mipmap/ic_launcher'); // Android 초기화 설정
+
     var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,);
+      android: initializationSettingsAndroid,
+    );
 
     await flutterLocalNotificationsPlugin
         .initialize(initializationSettings); // 알림 플러그인 초기화
@@ -134,7 +148,7 @@ class _MyPageState extends State<MyPage> {
         channelDescription: 'channel_description',
         importance: Importance.high,
         priority: Priority.high); // Android 알림 설정
-    
+
     var platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
@@ -167,6 +181,15 @@ class _MyPageState extends State<MyPage> {
     super.dispose();
   }
 
+  void _selectGender(int index) {
+    setState(() {
+      for (int i = 0; i < _isSelected.length; i++) {
+        _isSelected[i] = (i == index);
+      }
+      _selectedGender = _isSelected[index] ? _genders[index] : null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,110 +201,160 @@ class _MyPageState extends State<MyPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: '이름'),
-            ),
-            const SizedBox(height: 16.0),
-            DropdownButtonFormField<String>(
-              value: _selectedGender,
-              onChanged: (value) {
-                setState(() {
-                  _selectedGender = value;
-                });
-              },
-              items: const [
-                DropdownMenuItem(
-                  value: 'male',
-                  child: Text('남성'),
-                ),
-                DropdownMenuItem(
-                  value: 'female',
-                  child: Text('여성'),
-                ),
-              ],
-              decoration: const InputDecoration(
-                labelText: '성별',
+            Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade400, width: 2.0),
+                borderRadius: BorderRadius.circular(8.0),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            DropdownButtonFormField<String>(
-              value: _selectedJob,
-              onChanged: (value) {
-                setState(() {
-                  _selectedJob = value;
-                });
-              },
-              items: const [
-                DropdownMenuItem(
-                  value: '직장인',
-                  child: Text('직장인'),
-                ),
-                DropdownMenuItem(
-                  value: '학생',
-                  child: Text('학생'),
-                ),
-                DropdownMenuItem(
-                  value: '주부',
-                  child: Text('주부'),
-                ),
-                DropdownMenuItem(
-                  value: '군인',
-                  child: Text('군인'),
-                ),
-                DropdownMenuItem(
-                  value: '무직',
-                  child: Text('무직'),
-                ),
-              ],
-              decoration: const InputDecoration(
-                labelText: '직업',
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _quitDate != null
-                        ? '금연 시작일: ${_quitDate!.toString().substring(0, 10)}'
-                        : '금연 시작일을 설정해주세요.',
-                    style: TextStyle(fontSize: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '내정보',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    final selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: _quitDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (selectedDate != null) {
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: '이름'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '성별',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      ToggleButtons(
+                        isSelected: _isSelected,
+                        onPressed: _selectGender,
+                        children: [
+                          Text('남성'),
+                          Text('여성'),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: _quitDate ?? DateTime.now(),
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _quitDate = pickedDate;
+                        });
+                      }
+                    },
+                    child: Text(
+                      _quitDate != null
+                          ? '금연 시작일: ${_quitDate!.toString().split(' ')[0]}'
+                          : '금연 시작 날짜',
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _saveUserInformation();
+                      _updateUserInformation();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('정보가 저장되었습니다.')),
+                      );
+                      // 토글 버튼 상태에 따라 선택된 성별 설정
                       setState(() {
-                        _quitDate = selectedDate;
+                        _selectedGender = _isSelected[0]
+                            ? _genders[0]
+                            : _isSelected[1]
+                                ? _genders[1]
+                                : null;
                       });
-                    }
-                  },
-                  icon: const Icon(Icons.calendar_today),
-                ),
-              ],
+                    },
+                    child: const Text('저장'),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16.0),
-            SwitchListTile(
-              title: const Text('출석체크 알림 설정'),
-              value: isNotificationEnabled,
-              onChanged: toggleNotification,
+            ListTile(
+              tileColor: Colors.grey.shade50, // 타일의 배경색을 설정할 수 있습니다.
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0), // 테두리의 모서리를 둥글게 만듭니다.
+                side: BorderSide(
+                    color: Colors.grey.shade400,
+                    width: 2.0), // 테두리의 색상과 두께를 설정합니다.
+              ),
+              leading: Icon(Icons.notifications), // 아이콘 추가
+              title: Text('알림 설정'),
+              trailing: Icon(Icons.chevron_right), // 맨 오른쪽에 화살표 아이콘 추가
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => NotificationSettingsPage()),
+                );
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await _saveUserInformation();
-          await _updateUserInformation(); 
-        },
-        child: const Icon(Icons.save),
+    );
+  }
+}
+
+class NotificationSettingsPage extends StatelessWidget {
+  const NotificationSettingsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('알림 설정'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '알림 설정',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '매일 알림 받기',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Switch(
+                  value: true,
+                  onChanged: (value) {
+                    // 알림 활성화 여부 변경
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
