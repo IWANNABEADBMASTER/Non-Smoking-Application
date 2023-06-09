@@ -76,14 +76,19 @@ class _MainPageState extends State<MainPage> {
 
   // 정보 다시입력 창
   Future<void> _resetUserInformation() async {
-    final user = _firestore.collection('users').doc('your_user_id');
-    await user.update({
-      'name': FieldValue.delete(),
-      'gender': FieldValue.delete(),
-      'quitDate': FieldValue.delete(),
-    });
-    await _loadUserInformation();
-  }
+  final kakao.User user = await kakao.UserApi.instance.me();
+  final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.id.toString());
+
+  final dataToUpdate = {
+    'displayName': FieldValue.delete(),
+    'gender': FieldValue.delete(),
+    'quitDate': FieldValue.delete(),
+    'job': FieldValue.delete(),
+  };
+
+  await userDocRef.update(dataToUpdate);
+  await _loadUserInformation();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +131,7 @@ class _MainPageState extends State<MainPage> {
               style: const TextStyle(fontSize: 18.0),
             ),
             Text(
-              '연속 $_consecutiveDays일 동안 출석 중입니다.',
+              '$_consecutiveDays일 동안 출석 중입니다.',
               style: const TextStyle(fontSize: 18.0),
             ),
             Text(
