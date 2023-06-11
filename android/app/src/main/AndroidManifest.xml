@@ -1,10 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_application_1">
+
+    <!-- 위치 정보 엑세스 권한 요청 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name="${applicationName}"
         android:label="flutter_application_1"
         android:icon="@mipmap/ic_launcher">
+
+         <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value= "AIzaSyCaH6YroWXY2CI1aPgAY231NpXADAXxsVo"/>
 
         <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
@@ -18,9 +20,8 @@ class _CalendarPageState extends State<CalendarPage> {
   int _attendanceCount = 0;
   int _consecutiveDays = 0;
   bool _isAttendanceCompleted = false;
-  DateTime _currentDate = DateTime.now();
   late DocumentReference _userDocRef;
-  bool _isDisposed = false;
+  final bool _isDisposed = false;
 
   final EventList<Event> _markedDateMap = EventList<Event>(events: {});
 
@@ -52,24 +53,6 @@ class _CalendarPageState extends State<CalendarPage> {
 }
   }
 
-  Future<void> _loadMarkedDates() async {
-    final attendanceSnapshot = await _userDocRef.collection('attendance').get();
-    for (final doc in attendanceSnapshot.docs) {
-      final attendanceDate = DateTime.parse(doc.id);
-      _markedDateMap.add(
-        attendanceDate,
-        Event(
-          date: attendanceDate,
-          dot: Container(
-            decoration: const BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-      );
-    }
-  }
 
   Future<void> _checkAttendance() async {
     final now = DateTime.now();
@@ -269,7 +252,6 @@ class _CalendarPageState extends State<CalendarPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CalendarCarousel<Event>(
                 onDayPressed: (DateTime date, List<Event> events) {
-                  setState(() => _currentDate = date);
                 },
                 weekendTextStyle: const TextStyle(
                   color: Color.fromARGB(255, 36, 128, 205),
