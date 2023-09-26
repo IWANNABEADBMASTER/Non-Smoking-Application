@@ -1,10 +1,12 @@
 ### TABA 2기 - 금연 애플리케이션 제작(2023/03~2023/06)
 ## 💪 Used-Skills
 ![Android](https://img.shields.io/badge/Android-3DDC84.svg?&style=for-the-badge&logo=Android&logoColor=white)
+![Dart](https://img.shields.io/badge/dart-0175C2.svg?&style=for-the-badge&logo=Dart&logoColor=white)
 ![flutter](https://img.shields.io/badge/flutter-02569B.svg?&style=for-the-badge&logo=flutter&logoColor=black)
 ### Tools
 ![Git](https://img.shields.io/badge/Git-F05032.svg?&style=for-the-badge&logo=Git&logoColor=white)
 ![Android Studio](https://img.shields.io/badge/Android%20Studio-3DDC84.svg?&style=for-the-badge&logo=Android%20Studio&logoColor=white)
+![jira](https://img.shields.io/badge/jira-0052CC.svg?&style=for-the-badge&logo=jira&logoColor=white)
 
 ## Flutter 프레임워크를 이용한 Dart언어로 Android 어플 만들기
 금연 도우미 HOOHA 어플은 카카오 로그인 및 파이어스토어 서버와 연동되어
